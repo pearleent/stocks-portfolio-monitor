@@ -6,13 +6,21 @@ Ships with **placeholder positions** (AAPL, MSFT, GOOGL, AMZN, TSLA, NVDA with m
 
 ## Run it locally
 
-No install needed — just open `index.html` in a browser, or serve the folder:
+No install needed — just serve the folder (opening `index.html` directly via `file://` works in most browsers too, but some block `fetch` from `file://` origins, so serving is more reliable).
+
+If you have Python:
 
 ```bash
 python -m http.server 8000
 ```
 
-Then visit `http://localhost:8000`.
+If you don't (this machine didn't), use the included PowerShell server instead:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File serve.ps1
+```
+
+Then visit `http://localhost:8934` (or `:8000` for the Python option).
 
 ## Host it on GitHub Pages
 
