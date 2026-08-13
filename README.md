@@ -6,7 +6,10 @@ Ships pre-populated with a starting set of tickers grouped by note (e.g. "DBS 8/
 
 ## Run it locally
 
-No install needed — just serve the folder (opening `index.html` directly via `file://` works in most browsers too, but some block `fetch` from `file://` origins, so serving is more reliable).
+Two ways to run it:
+
+- **Single file**: open `portfolio-monitor.html` directly (double-click it) — it's the whole app (HTML/CSS/JS) bundled into one file, easiest to share or move around.
+- **Multi-file**: `index.html` + `style.css` + `app.js` is the same app split up for easier editing. Opening `index.html` directly via `file://` works in most browsers, but some block `fetch` from `file://` origins, so serving it is more reliable.
 
 If you have Python:
 
@@ -30,9 +33,9 @@ Then visit `http://localhost:8934` (or `:8000` for the Python option).
 
 ## Editing your tickers
 
-- Click any **Group**, **Strike**, or **Knock Out** cell to edit it in place. Strike and Knock Out are free-form numeric fields — use them for whatever levels matter to you (e.g. warrant strike/barrier prices).
-- Type a **Group** name to file a ticker under it — rows are automatically clustered under a header for each group name in use. Existing group names autocomplete as you type. Leave it blank to fall under "Ungrouped".
-- Use the **Add Ticker** row to add a new one (group/strike/knock-out are optional at add time and can be filled in later).
+- Click any **Strike**, **Initial**, or **Knock Out** cell to edit it in place — all free-form numeric fields.
+- **% from Initial** is computed automatically as `(price - initial) / initial`. The Strike cell turns red when price drops below it; Knock Out turns green when price rises above it.
+- Use the **Add Ticker** row to add a new one, including its **Group** — rows are automatically clustered under a header for each group name in use (existing group names autocomplete as you type). To move a ticker to a different group afterward, remove and re-add it.
 - Click **✕** on a row to remove it.
 - **Refresh Prices** fetches current quotes; **Auto-refresh** re-fetches every 2 minutes while the tab is open.
 
@@ -49,6 +52,9 @@ If you want something sturdier:
 
 ## Files
 
+- `portfolio-monitor.html` — single-file bundle of everything below, for easy sharing/opening
 - `index.html` — page structure
 - `style.css` — styling (light/dark aware via `prefers-color-scheme`)
 - `app.js` — all portfolio logic: state, price fetching, rendering
+
+The two versions share code by hand, not by build step — if you edit `app.js`/`style.css`/`index.html`, mirror the change into `portfolio-monitor.html` (or ask to have it regenerated).

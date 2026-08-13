@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Monitor</title>
+<style>
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --border: #e2e5ea;
+  --text: #1a1d23;
+  --text-muted: #6b7280;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --positive: #16a34a;
+  --negative: #dc2626;
+  --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --surface: #171a21;
+    --border: #2a2e37;
+    --text: #e7e9ee;
+    --text-muted: #9aa1ac;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --positive: #22c55e;
+    --negative: #f87171;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.4);
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.last-updated {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.auto-refresh {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:disabled { opacity: 0.6; cursor: default; }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+.btn-secondary:hover { background: var(--accent); color: white; }
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.card-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 620px;
+}
+
+th, td {
+  text-align: right;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+th:first-child, td:first-child {
+  text-align: left;
+}
+
+th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--border);
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+tbody tr:last-child { border-bottom: none; }
+
+.ticker-cell {
+  font-weight: 700;
+}
+
+.group-header td {
+  text-align: left;
+  background: var(--bg);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  padding: 8px 14px;
+}
+
+.group-count {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.positive { color: var(--positive); }
+.negative { color: var(--negative); }
+.neutral { color: var(--text-muted); }
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.remove-btn:hover { color: var(--negative); background: rgba(220,38,38,0.1); }
+
+.editable {
+  background: transparent;
+  border: 1px solid transparent;
+  color: inherit;
+  font: inherit;
+  text-align: right;
+  width: 70px;
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+.cell-below-strike {
+  background: rgba(220, 38, 38, 0.15);
+}
+.cell-below-strike .editable {
+  color: var(--negative);
+  font-weight: 600;
+}
+
+.cell-above-knockout {
+  background: rgba(22, 163, 74, 0.15);
+}
+.cell-above-knockout .editable {
+  color: var(--positive);
+  font-weight: 600;
+}
+.editable:hover, .editable:focus {
+  border-color: var(--border);
+  outline: none;
+  background: var(--bg);
+}
+
+.add-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.add-row input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 0.9rem;
+  flex: 1;
+  min-width: 120px;
+}
+
+.status-msg {
+  min-height: 1.2em;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+footer {
+  margin-top: 24px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+footer code {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <h1>Portfolio Monitor</h1>
+      <span class="subtitle" id="subtitle">Grouped by note — edit anytime</span>
+    </div>
+    <div class="topbar-actions">
+      <span id="lastUpdated" class="last-updated">Not refreshed yet</span>
+      <label class="auto-refresh">
+        <input type="checkbox" id="autoRefreshToggle">
+        Auto-refresh (2 min)
+      </label>
+      <button id="refreshBtn" class="btn btn-primary">Refresh Prices</button>
+    </div>
+  </header>
+
+  <section class="summary-cards" id="summaryCards">
+    <div class="card">
+      <span class="card-label">Tickers</span>
+      <span class="card-value" id="totalTickers">0</span>
+    </div>
+    <div class="card">
+      <span class="card-label">Groups</span>
+      <span class="card-value" id="totalGroups">0</span>
+    </div>
+  </section>
+
+  <section class="table-wrap">
+    <table id="portfolioTable">
+      <thead>
+        <tr>
+          <th>Ticker</th>
+          <th>Strike</th>
+          <th>Initial</th>
+          <th>% from Initial</th>
+          <th>Knock Out</th>
+          <th>Price</th>
+          <th>Day %</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="portfolioBody">
+      </tbody>
+    </table>
+  </section>
+
+  <datalist id="groupList"></datalist>
+
+  <section class="add-row">
+    <input type="text" id="newTicker" placeholder="Ticker (e.g. AAPL)" maxlength="10">
+    <input type="text" id="newGroup" placeholder="Group (e.g. Tech)" list="groupList" maxlength="40">
+    <input type="number" id="newStrike" placeholder="Strike" step="any">
+    <input type="number" id="newInitial" placeholder="Initial" step="any">
+    <input type="number" id="newKnockout" placeholder="Knock out" step="any">
+    <button id="addBtn" class="btn btn-secondary">Add Ticker</button>
+  </section>
+
+  <p id="statusMsg" class="status-msg"></p>
+
+  <footer>
+    <p>Prices via a public Yahoo Finance chart endpoint routed through a CORS-friendly proxy. Data is delayed and provided as-is — not for trading decisions. See <code>README.md</code> to swap in a different data source.</p>
+  </footer>
+
+</div>
+<script>
+// Portfolio Monitor
+// Positions are persisted in localStorage. Prices come from Yahoo Finance's
+// public chart endpoint, routed through a CORS proxy since browsers block
+// direct cross-origin requests to it. See README.md for swapping providers.
+
+const STORAGE_KEY = "portfolio-monitor.positions";
+const UNGROUPED = "Ungrouped";
+
+const DEFAULT_POSITIONS = [
+  { ticker: "MA", group: "Moo 11/9/26 18%/55%/100%", strike: 280.77, initial: 509.94, knockout: 509.94 },
+  { ticker: "V", group: "Moo 11/9/26 18%/55%/100%", strike: 171.20, initial: 310.94, knockout: 310.94 },
+  { ticker: "CRCL", group: "Moo 11/9/26 18%/55%/100%", strike: 51.44, initial: 93.43, knockout: 93.42 },
+
+  { ticker: "INTC", group: "Moo 8/11/27 18.54%/50%/100%", strike: 48.25, initial: 96.50, knockout: 96.50 },
+  { ticker: "AVGO", group: "Moo 8/11/27 18.54%/50%/100%", strike: 197.41, initial: 394.81, knockout: 394.81 },
+
+  { ticker: "AMZN", group: "DBS 8/13/27 13.11%/75%/105%", strike: 184.69, initial: 230.86, knockout: 242.40 },
+  { ticker: "GOOGL", group: "DBS 8/13/27 13.11%/75%/105%", strike: 266.97, initial: 333.71, knockout: 350.40 },
+  { ticker: "MSFT", group: "DBS 8/13/27 13.11%/75%/105%", strike: 314.68, initial: 393.35, knockout: 413.02 },
+];
+
+// Tried in order; first one that returns usable data for a symbol wins.
+const PROXIES = [
+  (url) => `https://r.jina.ai/${url}`,
+  (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+];
+
+let positions = loadPositions();
+let quoteCache = {}; // ticker -> { price, prevClose, changePct }
+
+function loadPositions() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return parsed.map(p => ({
+        ticker: p.ticker,
+        group: p.group || "",
+        strike: p.strike ?? null,
+        initial: p.initial ?? null,
+        knockout: p.knockout ?? null,
+      }));
+    }
+  } catch (e) { /* fall through to defaults */ }
+  return DEFAULT_POSITIONS.map(p => ({ ...p }));
+}
+
+function savePositions() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
+}
+
+function fmtMoney(n) {
+  if (!isFinite(n)) return "—";
+  const sign = n < 0 ? "-" : "";
+  return sign + "$" + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function fmtNum(n) {
+  if (n === null || n === undefined || !isFinite(n)) return "";
+  return n;
+}
+
+function fmtPct(n) {
+  if (!isFinite(n)) return "—";
+  const sign = n > 0 ? "+" : "";
+  return sign + n.toFixed(2) + "%";
+}
+
+function gainClass(n) {
+  if (!isFinite(n) || n === 0) return "neutral";
+  return n > 0 ? "positive" : "negative";
+}
+
+function groupKey(g) {
+  return g && g.trim() ? g.trim() : UNGROUPED;
+}
+
+async function fetchQuote(ticker) {
+  const target = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}`;
+
+  for (const buildProxyUrl of PROXIES) {
+    try {
+      const res = await fetch(buildProxyUrl(target));
+      if (!res.ok) continue;
+      const text = await res.text();
+
+      // r.jina.ai wraps the JSON in a markdown-ish text response; extract the JSON body.
+      const jsonStart = text.indexOf("{");
+      if (jsonStart === -1) continue;
+      const data = JSON.parse(text.slice(jsonStart));
+
+      const meta = data?.chart?.result?.[0]?.meta;
+      if (!meta || typeof meta.regularMarketPrice !== "number") continue;
+
+      const price = meta.regularMarketPrice;
+      const prevClose = meta.previousClose ?? meta.chartPreviousClose ?? price;
+      const changePct = prevClose ? ((price - prevClose) / prevClose) * 100 : 0;
+
+      return { price, prevClose, changePct };
+    } catch (e) {
+      continue; // try next proxy
+    }
+  }
+  return null; // all proxies failed for this ticker
+}
+
+async function refreshPrices() {
+  const btn = document.getElementById("refreshBtn");
+  const status = document.getElementById("statusMsg");
+  btn.disabled = true;
+  btn.textContent = "Refreshing…";
+  status.textContent = "";
+
+  const results = await Promise.all(positions.map(p => fetchQuote(p.ticker)));
+
+  let failures = [];
+  positions.forEach((p, i) => {
+    if (results[i]) {
+      quoteCache[p.ticker] = results[i];
+    } else {
+      failures.push(p.ticker);
+    }
+  });
+
+  render();
+
+  btn.disabled = false;
+  btn.textContent = "Refresh Prices";
+  document.getElementById("lastUpdated").textContent = "Updated " + new Date().toLocaleTimeString();
+
+  status.textContent = failures.length
+    ? `Couldn't fetch: ${failures.join(", ")} (proxy or ticker issue — see README).`
+    : "";
+}
+
+function sortedOrder() {
+  return positions
+    .map((_, i) => i)
+    .sort((a, b) => {
+      const ga = groupKey(positions[a].group);
+      const gb = groupKey(positions[b].group);
+      if (ga === gb) return 0; // stable sort keeps insertion order within a group
+      if (ga === UNGROUPED) return 1;
+      if (gb === UNGROUPED) return -1;
+      return ga.localeCompare(gb);
+    });
+}
+
+function updateGroupList() {
+  const groups = [...new Set(positions.map(p => groupKey(p.group)).filter(g => g !== UNGROUPED))];
+  const datalist = document.getElementById("groupList");
+  datalist.innerHTML = groups.map(g => `<option value="${g}"></option>`).join("");
+}
+
+function render() {
+  const tbody = document.getElementById("portfolioBody");
+  tbody.innerHTML = "";
+
+  const order = sortedOrder();
+  let lastGroup = null;
+
+  order.forEach((index) => {
+    const p = positions[index];
+    const g = groupKey(p.group);
+
+    if (g !== lastGroup) {
+      const count = positions.filter(pp => groupKey(pp.group) === g).length;
+      const headerRow = document.createElement("tr");
+      headerRow.className = "group-header";
+      headerRow.innerHTML = `<td colspan="8">${g} <span class="group-count">(${count})</span></td>`;
+      tbody.appendChild(headerRow);
+      lastGroup = g;
+    }
+
+    const q = quoteCache[p.ticker];
+    const price = q ? q.price : NaN;
+    const dayPct = q ? q.changePct : NaN;
+
+    const strikeBreached = isFinite(price) && isFinite(p.strike) && price < p.strike;
+    const knockoutBreached = isFinite(price) && isFinite(p.knockout) && price > p.knockout;
+    const pctFromInitial = isFinite(price) && isFinite(p.initial) && p.initial !== 0
+      ? ((price - p.initial) / p.initial) * 100
+      : NaN;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="ticker-cell">${p.ticker}</td>
+      <td class="${strikeBreached ? "cell-below-strike" : ""}"><input class="editable" type="number" step="any" value="${fmtNum(p.strike)}" placeholder="—" data-field="strike" data-index="${index}"></td>
+      <td><input class="editable" type="number" step="any" value="${fmtNum(p.initial)}" placeholder="—" data-field="initial" data-index="${index}"></td>
+      <td class="${gainClass(pctFromInitial)}">${fmtPct(pctFromInitial)}</td>
+      <td class="${knockoutBreached ? "cell-above-knockout" : ""}"><input class="editable" type="number" step="any" value="${fmtNum(p.knockout)}" placeholder="—" data-field="knockout" data-index="${index}"></td>
+      <td>${isFinite(price) ? fmtMoney(price) : "—"}</td>
+      <td class="${gainClass(dayPct)}">${fmtPct(dayPct)}</td>
+      <td><button class="remove-btn" data-index="${index}" title="Remove ticker">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("totalTickers").textContent = positions.length;
+  document.getElementById("totalGroups").textContent = new Set(positions.map(p => groupKey(p.group))).size;
+
+  updateGroupList();
+  attachRowHandlers();
+}
+
+function attachRowHandlers() {
+  document.querySelectorAll(".editable").forEach(input => {
+    input.addEventListener("change", (e) => {
+      const index = Number(e.target.dataset.index);
+      const field = e.target.dataset.field;
+      const value = parseFloat(e.target.value);
+      positions[index][field] = isFinite(value) ? value : null;
+      savePositions();
+      render();
+    });
+  });
+
+  document.querySelectorAll(".remove-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const index = Number(e.currentTarget.dataset.index);
+      positions.splice(index, 1);
+      savePositions();
+      render();
+    });
+  });
+}
+
+function addPosition() {
+  const tickerInput = document.getElementById("newTicker");
+  const groupInput = document.getElementById("newGroup");
+  const strikeInput = document.getElementById("newStrike");
+  const initialInput = document.getElementById("newInitial");
+  const knockoutInput = document.getElementById("newKnockout");
+
+  const ticker = tickerInput.value.trim().toUpperCase();
+  const group = groupInput.value.trim();
+  const strike = parseFloat(strikeInput.value);
+  const initial = parseFloat(initialInput.value);
+  const knockout = parseFloat(knockoutInput.value);
+
+  if (!ticker) {
+    document.getElementById("statusMsg").textContent = "Enter a ticker to add it.";
+    return;
+  }
+
+  positions.push({
+    ticker,
+    group,
+    strike: isFinite(strike) ? strike : null,
+    initial: isFinite(initial) ? initial : null,
+    knockout: isFinite(knockout) ? knockout : null,
+  });
+  savePositions();
+  tickerInput.value = "";
+  groupInput.value = "";
+  strikeInput.value = "";
+  initialInput.value = "";
+  knockoutInput.value = "";
+  render();
+  fetchQuote(ticker).then(q => {
+    if (q) { quoteCache[ticker] = q; render(); }
+  });
+}
+
+let autoRefreshTimer = null;
+function setAutoRefresh(enabled) {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+  autoRefreshTimer = enabled ? setInterval(refreshPrices, 2 * 60 * 1000) : null;
+}
+
+document.getElementById("refreshBtn").addEventListener("click", refreshPrices);
+document.getElementById("addBtn").addEventListener("click", addPosition);
+document.getElementById("autoRefreshToggle").addEventListener("change", (e) => setAutoRefresh(e.target.checked));
+
+render();
+refreshPrices();
+</script>
+</body>
+</html>
