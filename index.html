@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Monitor</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <h1>Portfolio Monitor</h1>
+      <span class="subtitle">Placeholder tickers — edit anytime</span>
+    </div>
+    <div class="topbar-actions">
+      <span id="lastUpdated" class="last-updated">Not refreshed yet</span>
+      <label class="auto-refresh">
+        <input type="checkbox" id="autoRefreshToggle">
+        Auto-refresh (2 min)
+      </label>
+      <button id="refreshBtn" class="btn btn-primary">Refresh Prices</button>
+    </div>
+  </header>
+
+  <section class="summary-cards" id="summaryCards">
+    <div class="card">
+      <span class="card-label">Market Value</span>
+      <span class="card-value" id="totalValue">$0.00</span>
+    </div>
+    <div class="card">
+      <span class="card-label">Cost Basis</span>
+      <span class="card-value" id="totalCost">$0.00</span>
+    </div>
+    <div class="card">
+      <span class="card-label">Total Gain / Loss</span>
+      <span class="card-value" id="totalGain">$0.00</span>
+    </div>
+    <div class="card">
+      <span class="card-label">Return</span>
+      <span class="card-value" id="totalReturnPct">0.00%</span>
+    </div>
+  </section>
+
+  <section class="table-wrap">
+    <table id="portfolioTable">
+      <thead>
+        <tr>
+          <th>Ticker</th>
+          <th>Shares</th>
+          <th>Avg Cost</th>
+          <th>Price</th>
+          <th>Day %</th>
+          <th>Market Value</th>
+          <th>Gain / Loss</th>
+          <th>Return %</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="portfolioBody">
+      </tbody>
+    </table>
+  </section>
+
+  <section class="add-row">
+    <input type="text" id="newTicker" placeholder="Ticker (e.g. AAPL)" maxlength="10">
+    <input type="number" id="newShares" placeholder="Shares" min="0" step="any">
+    <input type="number" id="newCost" placeholder="Avg cost / share" min="0" step="any">
+    <button id="addBtn" class="btn btn-secondary">Add Position</button>
+  </section>
+
+  <p id="statusMsg" class="status-msg"></p>
+
+  <footer>
+    <p>Prices via a public Yahoo Finance chart endpoint routed through a CORS-friendly proxy. Data is delayed and provided as-is — not for trading decisions. See <code>README.md</code> to swap in a different data source.</p>
+  </footer>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>
