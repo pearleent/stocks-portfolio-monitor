@@ -189,9 +189,9 @@ function render() {
       <td>${isFinite(price) ? fmtMoney(price) : "—"}</td>
       <td class="${gainClass(dayPct)}">${fmtPct(dayPct)}</td>
       <td class="${gainClass(pctFromInitial)}">${fmtPct(pctFromInitial)}</td>
-      <td><input class="editable" type="number" step="any" value="${fmtNum(p.initial)}" placeholder="—" data-field="initial" data-index="${index}"></td>
       <td class="${strikeBreached ? "cell-below-strike" : ""}"><input class="editable" type="number" step="any" value="${fmtNum(p.strike)}" placeholder="—" data-field="strike" data-index="${index}"></td>
       <td class="${knockoutBreached ? "cell-above-knockout" : ""}"><input class="editable" type="number" step="any" value="${fmtNum(p.knockout)}" placeholder="—" data-field="knockout" data-index="${index}"></td>
+      <td><input class="editable" type="number" step="any" value="${fmtNum(p.initial)}" placeholder="—" data-field="initial" data-index="${index}"></td>
       <td><button class="remove-btn" data-index="${index}" title="Remove ticker">✕</button></td>
     `;
     tbody.appendChild(tr);
