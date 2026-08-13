@@ -12,7 +12,7 @@
   <header class="topbar">
     <div class="brand">
       <h1>Portfolio Monitor</h1>
-      <span class="subtitle">Placeholder tickers — edit anytime</span>
+      <span class="subtitle" id="subtitle">Placeholder tickers — edit anytime</span>
     </div>
     <div class="topbar-actions">
       <span id="lastUpdated" class="last-updated">Not refreshed yet</span>
@@ -26,20 +26,12 @@
 
   <section class="summary-cards" id="summaryCards">
     <div class="card">
-      <span class="card-label">Market Value</span>
-      <span class="card-value" id="totalValue">$0.00</span>
+      <span class="card-label">Tickers</span>
+      <span class="card-value" id="totalTickers">0</span>
     </div>
     <div class="card">
-      <span class="card-label">Cost Basis</span>
-      <span class="card-value" id="totalCost">$0.00</span>
-    </div>
-    <div class="card">
-      <span class="card-label">Total Gain / Loss</span>
-      <span class="card-value" id="totalGain">$0.00</span>
-    </div>
-    <div class="card">
-      <span class="card-label">Return</span>
-      <span class="card-value" id="totalReturnPct">0.00%</span>
+      <span class="card-label">Groups</span>
+      <span class="card-value" id="totalGroups">0</span>
     </div>
   </section>
 
@@ -48,13 +40,11 @@
       <thead>
         <tr>
           <th>Ticker</th>
-          <th>Shares</th>
-          <th>Avg Cost</th>
+          <th>Group</th>
+          <th>Strike</th>
+          <th>Knock Out</th>
           <th>Price</th>
           <th>Day %</th>
-          <th>Market Value</th>
-          <th>Gain / Loss</th>
-          <th>Return %</th>
           <th></th>
         </tr>
       </thead>
@@ -63,11 +53,14 @@
     </table>
   </section>
 
+  <datalist id="groupList"></datalist>
+
   <section class="add-row">
     <input type="text" id="newTicker" placeholder="Ticker (e.g. AAPL)" maxlength="10">
-    <input type="number" id="newShares" placeholder="Shares" min="0" step="any">
-    <input type="number" id="newCost" placeholder="Avg cost / share" min="0" step="any">
-    <button id="addBtn" class="btn btn-secondary">Add Position</button>
+    <input type="text" id="newGroup" placeholder="Group (e.g. Tech)" list="groupList" maxlength="40">
+    <input type="number" id="newStrike" placeholder="Strike" step="any">
+    <input type="number" id="newKnockout" placeholder="Knock out" step="any">
+    <button id="addBtn" class="btn btn-secondary">Add Ticker</button>
   </section>
 
   <p id="statusMsg" class="status-msg"></p>

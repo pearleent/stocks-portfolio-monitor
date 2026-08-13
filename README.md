@@ -2,7 +2,7 @@
 
 A small, dependency-free stock portfolio dashboard. Static HTML/CSS/JS — no build step, no server required.
 
-Ships with **placeholder positions** (AAPL, MSFT, GOOGL, AMZN, TSLA, NVDA with made-up share counts and cost bases) so you can see it working immediately. Edit or replace them with your real holdings — everything is stored in your browser's `localStorage`, never sent anywhere except the price-fetch requests below.
+Ships with **placeholder tickers** (AAPL, MSFT, GOOGL, AMZN, TSLA, NVDA with made-up strike/knock-out levels, grouped into "Tech", "Consumer", and "Watchlist") so you can see it working immediately. Edit or replace them with your own — everything is stored in your browser's `localStorage`, never sent anywhere except the price-fetch requests below.
 
 ## Run it locally
 
@@ -28,10 +28,11 @@ Then visit `http://localhost:8934` (or `:8000` for the Python option).
 2. Repo Settings → Pages → Deploy from branch → pick `main` and `/root`.
 3. Your dashboard will be live at `https://<username>.github.io/<repo>/`.
 
-## Editing your portfolio
+## Editing your tickers
 
-- Click any **Shares** or **Avg Cost** cell to edit it in place.
-- Use the **Add Position** row to add a new ticker.
+- Click any **Group**, **Strike**, or **Knock Out** cell to edit it in place. Strike and Knock Out are free-form numeric fields — use them for whatever levels matter to you (e.g. warrant strike/barrier prices).
+- Type a **Group** name to file a ticker under it — rows are automatically clustered under a header for each group name in use. Existing group names autocomplete as you type. Leave it blank to fall under "Ungrouped".
+- Use the **Add Ticker** row to add a new one (group/strike/knock-out are optional at add time and can be filled in later).
 - Click **✕** on a row to remove it.
 - **Refresh Prices** fetches current quotes; **Auto-refresh** re-fetches every 2 minutes while the tab is open.
 

@@ -4,14 +4,15 @@
 // direct cross-origin requests to it. See README.md for swapping providers.
 
 const STORAGE_KEY = "portfolio-monitor.positions";
+const UNGROUPED = "Ungrouped";
 
 const PLACEHOLDER_POSITIONS = [
-  { ticker: "AAPL", shares: 10, cost: 180.00 },
-  { ticker: "MSFT", shares: 5, cost: 340.00 },
-  { ticker: "GOOGL", shares: 8, cost: 130.00 },
-  { ticker: "AMZN", shares: 6, cost: 145.00 },
-  { ticker: "TSLA", shares: 4, cost: 220.00 },
-  { ticker: "NVDA", shares: 12, cost: 90.00 },
+  { ticker: "AAPL", group: "Tech", strike: 280.00, knockout: 260.00 },
+  { ticker: "MSFT", group: "Tech", strike: 460.00, knockout: 430.00 },
+  { ticker: "GOOGL", group: "Tech", strike: 320.00, knockout: 300.00 },
+  { ticker: "AMZN", group: "Consumer", strike: 250.00, knockout: 230.00 },
+  { ticker: "TSLA", group: "Watchlist", strike: 300.00, knockout: 270.00 },
+  { ticker: "NVDA", group: "Watchlist", strike: 210.00, knockout: 190.00 },
 ];
 
 // Tried in order; first one that returns usable data for a symbol wins.
@@ -27,7 +28,15 @@ let quoteCache = {}; // ticker -> { price, prevClose, changePct }
 function loadPositions() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return parsed.map(p => ({
+        ticker: p.ticker,
+        group: p.group || "",
+        strike: p.strike ?? null,
+        knockout: p.knockout ?? null,
+      }));
+    }
   } catch (e) { /* fall through to defaults */ }
   return PLACEHOLDER_POSITIONS.map(p => ({ ...p }));
 }
@@ -42,6 +51,11 @@ function fmtMoney(n) {
   return sign + "$" + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function fmtNum(n) {
+  if (n === null || n === undefined || !isFinite(n)) return "";
+  return n;
+}
+
 function fmtPct(n) {
   if (!isFinite(n)) return "—";
   const sign = n > 0 ? "+" : "";
@@ -51,6 +65,10 @@ function fmtPct(n) {
 function gainClass(n) {
   if (!isFinite(n) || n === 0) return "neutral";
   return n > 0 ? "positive" : "negative";
+}
+
+function groupKey(g) {
+  return g && g.trim() ? g.trim() : UNGROUPED;
 }
 
 async function fetchQuote(ticker) {
@@ -111,54 +129,66 @@ async function refreshPrices() {
     : "";
 }
 
+function sortedOrder() {
+  return positions
+    .map((_, i) => i)
+    .sort((a, b) => {
+      const ga = groupKey(positions[a].group);
+      const gb = groupKey(positions[b].group);
+      if (ga === gb) return 0; // stable sort keeps insertion order within a group
+      if (ga === UNGROUPED) return 1;
+      if (gb === UNGROUPED) return -1;
+      return ga.localeCompare(gb);
+    });
+}
+
+function updateGroupList() {
+  const groups = [...new Set(positions.map(p => groupKey(p.group)).filter(g => g !== UNGROUPED))];
+  const datalist = document.getElementById("groupList");
+  datalist.innerHTML = groups.map(g => `<option value="${g}"></option>`).join("");
+}
+
 function render() {
   const tbody = document.getElementById("portfolioBody");
   tbody.innerHTML = "";
 
-  let totalValue = 0;
-  let totalCost = 0;
+  const order = sortedOrder();
+  let lastGroup = null;
 
-  positions.forEach((p, index) => {
+  order.forEach((index) => {
+    const p = positions[index];
+    const g = groupKey(p.group);
+
+    if (g !== lastGroup) {
+      const count = positions.filter(pp => groupKey(pp.group) === g).length;
+      const headerRow = document.createElement("tr");
+      headerRow.className = "group-header";
+      headerRow.innerHTML = `<td colspan="7">${g} <span class="group-count">(${count})</span></td>`;
+      tbody.appendChild(headerRow);
+      lastGroup = g;
+    }
+
     const q = quoteCache[p.ticker];
     const price = q ? q.price : NaN;
     const dayPct = q ? q.changePct : NaN;
-    const marketValue = price * p.shares;
-    const costBasis = p.cost * p.shares;
-    const gain = marketValue - costBasis;
-    const returnPct = costBasis ? (gain / costBasis) * 100 : NaN;
-
-    if (isFinite(marketValue)) totalValue += marketValue;
-    if (isFinite(costBasis)) totalCost += costBasis;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="ticker-cell">${p.ticker}</td>
-      <td><input class="editable" type="number" min="0" step="any" value="${p.shares}" data-field="shares" data-index="${index}"></td>
-      <td><input class="editable" type="number" min="0" step="any" value="${p.cost}" data-field="cost" data-index="${index}"></td>
+      <td><input class="editable editable-text" type="text" list="groupList" value="${p.group || ""}" placeholder="—" data-field="group" data-index="${index}"></td>
+      <td><input class="editable" type="number" step="any" value="${fmtNum(p.strike)}" placeholder="—" data-field="strike" data-index="${index}"></td>
+      <td><input class="editable" type="number" step="any" value="${fmtNum(p.knockout)}" placeholder="—" data-field="knockout" data-index="${index}"></td>
       <td>${isFinite(price) ? fmtMoney(price) : "—"}</td>
       <td class="${gainClass(dayPct)}">${fmtPct(dayPct)}</td>
-      <td>${isFinite(marketValue) ? fmtMoney(marketValue) : "—"}</td>
-      <td class="${gainClass(gain)}">${isFinite(gain) ? fmtMoney(gain) : "—"}</td>
-      <td class="${gainClass(returnPct)}">${fmtPct(returnPct)}</td>
-      <td><button class="remove-btn" data-index="${index}" title="Remove position">✕</button></td>
+      <td><button class="remove-btn" data-index="${index}" title="Remove ticker">✕</button></td>
     `;
     tbody.appendChild(tr);
   });
 
-  const totalGain = totalValue - totalCost;
-  const totalReturnPct = totalCost ? (totalGain / totalCost) * 100 : NaN;
+  document.getElementById("totalTickers").textContent = positions.length;
+  document.getElementById("totalGroups").textContent = new Set(positions.map(p => groupKey(p.group))).size;
 
-  document.getElementById("totalValue").textContent = fmtMoney(totalValue);
-  document.getElementById("totalCost").textContent = fmtMoney(totalCost);
-
-  const totalGainEl = document.getElementById("totalGain");
-  totalGainEl.textContent = fmtMoney(totalGain);
-  totalGainEl.className = "card-value " + gainClass(totalGain);
-
-  const totalReturnEl = document.getElementById("totalReturnPct");
-  totalReturnEl.textContent = fmtPct(totalReturnPct);
-  totalReturnEl.className = "card-value " + gainClass(totalReturnPct);
-
+  updateGroupList();
   attachRowHandlers();
 }
 
@@ -167,12 +197,14 @@ function attachRowHandlers() {
     input.addEventListener("change", (e) => {
       const index = Number(e.target.dataset.index);
       const field = e.target.dataset.field;
-      const value = parseFloat(e.target.value);
-      if (isFinite(value) && value >= 0) {
-        positions[index][field] = value;
-        savePositions();
-        render();
+      if (field === "group") {
+        positions[index].group = e.target.value.trim();
+      } else {
+        const value = parseFloat(e.target.value);
+        positions[index][field] = isFinite(value) ? value : null;
       }
+      savePositions();
+      render();
     });
   });
 
@@ -188,23 +220,31 @@ function attachRowHandlers() {
 
 function addPosition() {
   const tickerInput = document.getElementById("newTicker");
-  const sharesInput = document.getElementById("newShares");
-  const costInput = document.getElementById("newCost");
+  const groupInput = document.getElementById("newGroup");
+  const strikeInput = document.getElementById("newStrike");
+  const knockoutInput = document.getElementById("newKnockout");
 
   const ticker = tickerInput.value.trim().toUpperCase();
-  const shares = parseFloat(sharesInput.value);
-  const cost = parseFloat(costInput.value);
+  const group = groupInput.value.trim();
+  const strike = parseFloat(strikeInput.value);
+  const knockout = parseFloat(knockoutInput.value);
 
-  if (!ticker || !isFinite(shares) || shares <= 0 || !isFinite(cost) || cost < 0) {
-    document.getElementById("statusMsg").textContent = "Enter a ticker, share count, and avg cost to add a position.";
+  if (!ticker) {
+    document.getElementById("statusMsg").textContent = "Enter a ticker to add it.";
     return;
   }
 
-  positions.push({ ticker, shares, cost });
+  positions.push({
+    ticker,
+    group,
+    strike: isFinite(strike) ? strike : null,
+    knockout: isFinite(knockout) ? knockout : null,
+  });
   savePositions();
   tickerInput.value = "";
-  sharesInput.value = "";
-  costInput.value = "";
+  groupInput.value = "";
+  strikeInput.value = "";
+  knockoutInput.value = "";
   render();
   fetchQuote(ticker).then(q => {
     if (q) { quoteCache[ticker] = q; render(); }
