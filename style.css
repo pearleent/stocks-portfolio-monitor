@@ -150,13 +150,13 @@ body {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 620px;
+  min-width: 460px;
 }
 
 th, td {
   text-align: right;
-  padding: 12px 14px;
-  font-size: 0.9rem;
+  padding: 8px 8px;
+  font-size: 0.85rem;
   white-space: nowrap;
 }
 
@@ -190,7 +190,7 @@ tbody tr:last-child { border-bottom: none; }
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--text-muted);
-  padding: 8px 14px;
+  padding: 6px 8px;
 }
 
 .group-count {
@@ -219,10 +219,11 @@ tbody tr:last-child { border-bottom: none; }
   border: 1px solid transparent;
   color: inherit;
   font: inherit;
+  font-size: 0.85rem;
   text-align: right;
-  width: 70px;
+  width: 52px;
   border-radius: 4px;
-  padding: 2px 4px;
+  padding: 2px 3px;
 }
 
 .cell-below-strike {
