@@ -7,16 +7,16 @@ const STORAGE_KEY = "portfolio-monitor.positions";
 const UNGROUPED = "Ungrouped";
 
 const DEFAULT_POSITIONS = [
-  { ticker: "MA", group: "Moo 11/9/26 18%/55%/100%", strike: 280.77, knockout: 509.94 },
-  { ticker: "V", group: "Moo 11/9/26 18%/55%/100%", strike: 171.20, knockout: 310.94 },
-  { ticker: "CRCL", group: "Moo 11/9/26 18%/55%/100%", strike: 51.44, knockout: 93.42 },
+  { ticker: "MA", group: "Moo 11/9/26 18%/55%/100%", strike: 280.77, initial: 559.73, knockout: 509.94 },
+  { ticker: "V", group: "Moo 11/9/26 18%/55%/100%", strike: 171.20, initial: 359.42, knockout: 310.94 },
+  { ticker: "CRCL", group: "Moo 11/9/26 18%/55%/100%", strike: 51.44, initial: 71.28, knockout: 93.42 },
 
-  { ticker: "INTC", group: "Moo 8/11/27 18.54%/50%/100%", strike: 48.25, knockout: 96.50 },
-  { ticker: "AVGO", group: "Moo 8/11/27 18.54%/50%/100%", strike: 197.41, knockout: 394.81 },
+  { ticker: "INTC", group: "Moo 8/11/27 18.54%/50%/100%", strike: 48.25, initial: 100.95, knockout: 96.50 },
+  { ticker: "AVGO", group: "Moo 8/11/27 18.54%/50%/100%", strike: 197.41, initial: 416.05, knockout: 394.81 },
 
-  { ticker: "AMZN", group: "DBS 8/13/27 13.11%/75%/105%", strike: 184.69, knockout: 242.40 },
-  { ticker: "GOOGL", group: "DBS 8/13/27 13.11%/75%/105%", strike: 266.97, knockout: 350.40 },
-  { ticker: "MSFT", group: "DBS 8/13/27 13.11%/75%/105%", strike: 314.68, knockout: 413.02 },
+  { ticker: "AMZN", group: "DBS 8/13/27 13.11%/75%/105%", strike: 184.69, initial: 230.86, knockout: 242.40 },
+  { ticker: "GOOGL", group: "DBS 8/13/27 13.11%/75%/105%", strike: 266.97, initial: 333.71, knockout: 350.40 },
+  { ticker: "MSFT", group: "DBS 8/13/27 13.11%/75%/105%", strike: 314.68, initial: 393.35, knockout: 413.02 },
 ];
 
 // Tried in order; first one that returns usable data for a symbol wins.
@@ -38,6 +38,7 @@ function loadPositions() {
         ticker: p.ticker,
         group: p.group || "",
         strike: p.strike ?? null,
+        initial: p.initial ?? null,
         knockout: p.knockout ?? null,
       }));
     }
@@ -167,7 +168,7 @@ function render() {
       const count = positions.filter(pp => groupKey(pp.group) === g).length;
       const headerRow = document.createElement("tr");
       headerRow.className = "group-header";
-      headerRow.innerHTML = `<td colspan="7">${g} <span class="group-count">(${count})</span></td>`;
+      headerRow.innerHTML = `<td colspan="8">${g} <span class="group-count">(${count})</span></td>`;
       tbody.appendChild(headerRow);
       lastGroup = g;
     }
@@ -178,15 +179,16 @@ function render() {
 
     const strikeBreached = isFinite(price) && isFinite(p.strike) && price < p.strike;
     const knockoutBreached = isFinite(price) && isFinite(p.knockout) && price > p.knockout;
-    const pctFromStrike = isFinite(price) && isFinite(p.strike) && p.strike !== 0
-      ? ((price - p.strike) / p.strike) * 100
+    const pctFromInitial = isFinite(price) && isFinite(p.initial) && p.initial !== 0
+      ? ((price - p.initial) / p.initial) * 100
       : NaN;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="ticker-cell">${p.ticker}</td>
       <td class="${strikeBreached ? "cell-below-strike" : ""}"><input class="editable" type="number" step="any" value="${fmtNum(p.strike)}" placeholder="—" data-field="strike" data-index="${index}"></td>
-      <td class="${gainClass(pctFromStrike)}">${fmtPct(pctFromStrike)}</td>
+      <td><input class="editable" type="number" step="any" value="${fmtNum(p.initial)}" placeholder="—" data-field="initial" data-index="${index}"></td>
+      <td class="${gainClass(pctFromInitial)}">${fmtPct(pctFromInitial)}</td>
       <td class="${knockoutBreached ? "cell-above-knockout" : ""}"><input class="editable" type="number" step="any" value="${fmtNum(p.knockout)}" placeholder="—" data-field="knockout" data-index="${index}"></td>
       <td>${isFinite(price) ? fmtMoney(price) : "—"}</td>
       <td class="${gainClass(dayPct)}">${fmtPct(dayPct)}</td>
@@ -228,11 +230,13 @@ function addPosition() {
   const tickerInput = document.getElementById("newTicker");
   const groupInput = document.getElementById("newGroup");
   const strikeInput = document.getElementById("newStrike");
+  const initialInput = document.getElementById("newInitial");
   const knockoutInput = document.getElementById("newKnockout");
 
   const ticker = tickerInput.value.trim().toUpperCase();
   const group = groupInput.value.trim();
   const strike = parseFloat(strikeInput.value);
+  const initial = parseFloat(initialInput.value);
   const knockout = parseFloat(knockoutInput.value);
 
   if (!ticker) {
@@ -244,12 +248,14 @@ function addPosition() {
     ticker,
     group,
     strike: isFinite(strike) ? strike : null,
+    initial: isFinite(initial) ? initial : null,
     knockout: isFinite(knockout) ? knockout : null,
   });
   savePositions();
   tickerInput.value = "";
   groupInput.value = "";
   strikeInput.value = "";
+  initialInput.value = "";
   knockoutInput.value = "";
   render();
   fetchQuote(ticker).then(q => {
