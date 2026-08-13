@@ -227,7 +227,7 @@ tbody tr:last-child { border-bottom: none; }
 
 .editable-text {
   text-align: left;
-  width: 110px;
+  width: 220px;
 }
 .editable:hover, .editable:focus {
   border-color: var(--border);

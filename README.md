@@ -2,7 +2,7 @@
 
 A small, dependency-free stock portfolio dashboard. Static HTML/CSS/JS — no build step, no server required.
 
-Ships with **placeholder tickers** (AAPL, MSFT, GOOGL, AMZN, TSLA, NVDA with made-up strike/knock-out levels, grouped into "Tech", "Consumer", and "Watchlist") so you can see it working immediately. Edit or replace them with your own — everything is stored in your browser's `localStorage`, never sent anywhere except the price-fetch requests below.
+Ships pre-populated with a starting set of tickers grouped by note (e.g. "DBS 8/13/27 13.11%/75%/105%") with their strike and knock-out levels. Edit or replace any of it with your own — everything is stored in your browser's `localStorage`, never sent anywhere except the price-fetch requests below.
 
 ## Run it locally
 

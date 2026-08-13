@@ -6,13 +6,17 @@
 const STORAGE_KEY = "portfolio-monitor.positions";
 const UNGROUPED = "Ungrouped";
 
-const PLACEHOLDER_POSITIONS = [
-  { ticker: "AAPL", group: "Tech", strike: 280.00, knockout: 260.00 },
-  { ticker: "MSFT", group: "Tech", strike: 460.00, knockout: 430.00 },
-  { ticker: "GOOGL", group: "Tech", strike: 320.00, knockout: 300.00 },
-  { ticker: "AMZN", group: "Consumer", strike: 250.00, knockout: 230.00 },
-  { ticker: "TSLA", group: "Watchlist", strike: 300.00, knockout: 270.00 },
-  { ticker: "NVDA", group: "Watchlist", strike: 210.00, knockout: 190.00 },
+const DEFAULT_POSITIONS = [
+  { ticker: "MA", group: "Moo 11/9/26 18%/55%/100%", strike: 280.77, knockout: 509.94 },
+  { ticker: "V", group: "Moo 11/9/26 18%/55%/100%", strike: 171.20, knockout: 310.94 },
+  { ticker: "CRCL", group: "Moo 11/9/26 18%/55%/100%", strike: 51.44, knockout: 93.42 },
+
+  { ticker: "INTC", group: "Moo 8/11/27 18.54%/50%/100%", strike: 48.25, knockout: 96.50 },
+  { ticker: "AVGO", group: "Moo 8/11/27 18.54%/50%/100%", strike: 197.41, knockout: 394.81 },
+
+  { ticker: "AMZN", group: "DBS 8/13/27 13.11%/75%/105%", strike: 184.69, knockout: 242.40 },
+  { ticker: "GOOGL", group: "DBS 8/13/27 13.11%/75%/105%", strike: 266.97, knockout: 350.40 },
+  { ticker: "MSFT", group: "DBS 8/13/27 13.11%/75%/105%", strike: 314.68, knockout: 413.02 },
 ];
 
 // Tried in order; first one that returns usable data for a symbol wins.
@@ -38,7 +42,7 @@ function loadPositions() {
       }));
     }
   } catch (e) { /* fall through to defaults */ }
-  return PLACEHOLDER_POSITIONS.map(p => ({ ...p }));
+  return DEFAULT_POSITIONS.map(p => ({ ...p }));
 }
 
 function savePositions() {
