@@ -114,37 +114,6 @@ body {
 }
 .btn-secondary:hover { background: var(--accent); color: white; }
 
-.summary-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px 18px;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.card-label {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.card-value {
-  font-size: 1.4rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
 .table-wrap {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -312,28 +281,17 @@ footer code {
     </div>
   </header>
 
-  <section class="summary-cards" id="summaryCards">
-    <div class="card">
-      <span class="card-label">Tickers</span>
-      <span class="card-value" id="totalTickers">0</span>
-    </div>
-    <div class="card">
-      <span class="card-label">Groups</span>
-      <span class="card-value" id="totalGroups">0</span>
-    </div>
-  </section>
-
   <section class="table-wrap">
     <table id="portfolioTable">
       <thead>
         <tr>
           <th>Ticker</th>
-          <th>Strike</th>
-          <th>Initial</th>
-          <th>% from Initial</th>
-          <th>Knock Out</th>
           <th>Price</th>
           <th>Day %</th>
+          <th>% from Initial</th>
+          <th>Initial</th>
+          <th>Strike</th>
+          <th>Knock Out</th>
           <th></th>
         </tr>
       </thead>
@@ -549,19 +507,16 @@ function render() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="ticker-cell">${p.ticker}</td>
-      <td class="${strikeBreached ? "cell-below-strike" : ""}"><input class="editable" type="number" step="any" value="${fmtNum(p.strike)}" placeholder="—" data-field="strike" data-index="${index}"></td>
-      <td><input class="editable" type="number" step="any" value="${fmtNum(p.initial)}" placeholder="—" data-field="initial" data-index="${index}"></td>
-      <td class="${gainClass(pctFromInitial)}">${fmtPct(pctFromInitial)}</td>
-      <td class="${knockoutBreached ? "cell-above-knockout" : ""}"><input class="editable" type="number" step="any" value="${fmtNum(p.knockout)}" placeholder="—" data-field="knockout" data-index="${index}"></td>
       <td>${isFinite(price) ? fmtMoney(price) : "—"}</td>
       <td class="${gainClass(dayPct)}">${fmtPct(dayPct)}</td>
+      <td class="${gainClass(pctFromInitial)}">${fmtPct(pctFromInitial)}</td>
+      <td><input class="editable" type="number" step="any" value="${fmtNum(p.initial)}" placeholder="—" data-field="initial" data-index="${index}"></td>
+      <td class="${strikeBreached ? "cell-below-strike" : ""}"><input class="editable" type="number" step="any" value="${fmtNum(p.strike)}" placeholder="—" data-field="strike" data-index="${index}"></td>
+      <td class="${knockoutBreached ? "cell-above-knockout" : ""}"><input class="editable" type="number" step="any" value="${fmtNum(p.knockout)}" placeholder="—" data-field="knockout" data-index="${index}"></td>
       <td><button class="remove-btn" data-index="${index}" title="Remove ticker">✕</button></td>
     `;
     tbody.appendChild(tr);
   });
-
-  document.getElementById("totalTickers").textContent = positions.length;
-  document.getElementById("totalGroups").textContent = new Set(positions.map(p => groupKey(p.group))).size;
 
   updateGroupList();
   attachRowHandlers();
