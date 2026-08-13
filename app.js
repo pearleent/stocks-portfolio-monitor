@@ -7,12 +7,12 @@ const STORAGE_KEY = "portfolio-monitor.positions";
 const UNGROUPED = "Ungrouped";
 
 const DEFAULT_POSITIONS = [
-  { ticker: "MA", group: "Moo 11/9/26 18%/55%/100%", strike: 280.77, initial: 559.73, knockout: 509.94 },
-  { ticker: "V", group: "Moo 11/9/26 18%/55%/100%", strike: 171.20, initial: 359.42, knockout: 310.94 },
-  { ticker: "CRCL", group: "Moo 11/9/26 18%/55%/100%", strike: 51.44, initial: 71.28, knockout: 93.42 },
+  { ticker: "MA", group: "Moo 11/9/26 18%/55%/100%", strike: 280.77, initial: 509.94, knockout: 509.94 },
+  { ticker: "V", group: "Moo 11/9/26 18%/55%/100%", strike: 171.20, initial: 310.94, knockout: 310.94 },
+  { ticker: "CRCL", group: "Moo 11/9/26 18%/55%/100%", strike: 51.44, initial: 93.43, knockout: 93.42 },
 
-  { ticker: "INTC", group: "Moo 8/11/27 18.54%/50%/100%", strike: 48.25, initial: 100.95, knockout: 96.50 },
-  { ticker: "AVGO", group: "Moo 8/11/27 18.54%/50%/100%", strike: 197.41, initial: 416.05, knockout: 394.81 },
+  { ticker: "INTC", group: "Moo 8/11/27 18.54%/50%/100%", strike: 48.25, initial: 96.50, knockout: 96.50 },
+  { ticker: "AVGO", group: "Moo 8/11/27 18.54%/50%/100%", strike: 197.41, initial: 394.81, knockout: 394.81 },
 
   { ticker: "AMZN", group: "DBS 8/13/27 13.11%/75%/105%", strike: 184.69, initial: 230.86, knockout: 242.40 },
   { ticker: "GOOGL", group: "DBS 8/13/27 13.11%/75%/105%", strike: 266.97, initial: 333.71, knockout: 350.40 },
