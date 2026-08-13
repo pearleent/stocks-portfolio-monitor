@@ -229,6 +229,22 @@ tbody tr:last-child { border-bottom: none; }
   text-align: left;
   width: 220px;
 }
+
+.cell-below-strike {
+  background: rgba(220, 38, 38, 0.15);
+}
+.cell-below-strike .editable {
+  color: var(--negative);
+  font-weight: 600;
+}
+
+.cell-above-knockout {
+  background: rgba(22, 163, 74, 0.15);
+}
+.cell-above-knockout .editable {
+  color: var(--positive);
+  font-weight: 600;
+}
 .editable:hover, .editable:focus {
   border-color: var(--border);
   outline: none;
