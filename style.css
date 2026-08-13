@@ -225,11 +225,6 @@ tbody tr:last-child { border-bottom: none; }
   padding: 2px 4px;
 }
 
-.editable-text {
-  text-align: left;
-  width: 220px;
-}
-
 .cell-below-strike {
   background: rgba(220, 38, 38, 0.15);
 }

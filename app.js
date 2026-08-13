@@ -178,12 +178,15 @@ function render() {
 
     const strikeBreached = isFinite(price) && isFinite(p.strike) && price < p.strike;
     const knockoutBreached = isFinite(price) && isFinite(p.knockout) && price > p.knockout;
+    const pctFromStrike = isFinite(price) && isFinite(p.strike) && p.strike !== 0
+      ? ((price - p.strike) / p.strike) * 100
+      : NaN;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="ticker-cell">${p.ticker}</td>
-      <td><input class="editable editable-text" type="text" list="groupList" value="${p.group || ""}" placeholder="—" data-field="group" data-index="${index}"></td>
       <td class="${strikeBreached ? "cell-below-strike" : ""}"><input class="editable" type="number" step="any" value="${fmtNum(p.strike)}" placeholder="—" data-field="strike" data-index="${index}"></td>
+      <td class="${gainClass(pctFromStrike)}">${fmtPct(pctFromStrike)}</td>
       <td class="${knockoutBreached ? "cell-above-knockout" : ""}"><input class="editable" type="number" step="any" value="${fmtNum(p.knockout)}" placeholder="—" data-field="knockout" data-index="${index}"></td>
       <td>${isFinite(price) ? fmtMoney(price) : "—"}</td>
       <td class="${gainClass(dayPct)}">${fmtPct(dayPct)}</td>
@@ -204,12 +207,8 @@ function attachRowHandlers() {
     input.addEventListener("change", (e) => {
       const index = Number(e.target.dataset.index);
       const field = e.target.dataset.field;
-      if (field === "group") {
-        positions[index].group = e.target.value.trim();
-      } else {
-        const value = parseFloat(e.target.value);
-        positions[index][field] = isFinite(value) ? value : null;
-      }
+      const value = parseFloat(e.target.value);
+      positions[index][field] = isFinite(value) ? value : null;
       savePositions();
       render();
     });
